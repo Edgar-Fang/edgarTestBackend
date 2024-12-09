@@ -25,4 +25,4 @@ jobs:
       run: dotnet build ./NorthWindService/NorthWindService.csproj --no-restore
       
     - name: Test
-      run: dotnet test ./NorthWindUnitTest/NorthWindUnitTest.csproj --no-build --verbosity normal
+      run: dotnet test ./NorthWindUnitTest/NorthWindUnitTest/NorthWindUnitTest.csproj --no-build --verbosity normal
