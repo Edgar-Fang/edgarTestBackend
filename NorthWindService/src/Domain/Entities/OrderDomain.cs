@@ -27,7 +27,7 @@ public class OrderDomain
         };
     }
 
-    public string GetFormattedFreight() => Freight.ToString("C", new CultureInfo("zh-TW"));
+    public string GetFormattedFreight() => $"NT${Freight:0.00}";
     public string GetFormattedOrderDate() => OrderDate?.ToString("yyyy/MM/dd") ?? "未設定日期";
     public string GetShipStatus() => ShippedDate.HasValue ? "已出貨" : "處理中";
 }
