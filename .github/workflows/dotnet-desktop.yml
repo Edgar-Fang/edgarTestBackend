@@ -19,10 +19,10 @@ jobs:
         dotnet-version: 8.0.x
         
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./NorthWindService/NorthWindService.csproj
       
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build ./NorthWindService/NorthWindService.csproj --no-restore
       
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ./NorthWindUnitTest/NorthWindUnitTest.csproj --no-build --verbosity normal
