@@ -29,8 +29,9 @@ public class OrderDomain
 
     public string GetFormattedFreight()
     {
-        return $"NT${Freight.ToString("F2", CultureInfo.InvariantCulture)}";
+        return $"NT${Freight.ToString("#,##0.00", CultureInfo.InvariantCulture)}";
     }
+
     public string GetFormattedOrderDate() => OrderDate?.ToString("yyyy/MM/dd") ?? "未設定日期";
     public string GetShipStatus() => ShippedDate.HasValue ? "已出貨" : "處理中";
 }
