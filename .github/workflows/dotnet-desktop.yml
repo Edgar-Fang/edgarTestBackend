@@ -29,44 +29,17 @@ jobs:
         dotnet build ./NorthWindService/NorthWindService.csproj --configuration Release
         dotnet build ./NorthWindUnitTest/NorthWindUnitTest/NorthWindUnitTest.csproj --configuration Release
       
-    - name: Test with Coverage
+    - name: Test
       run: dotnet test ./NorthWindUnitTest/NorthWindUnitTest/NorthWindUnitTest.csproj 
            --configuration Release
            --logger "trx;LogFileName=test-results.trx" 
-           --collect:"XPlat Code Coverage"
            --results-directory ./TestResults
            
-    # 其餘部分保持不變
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-      
-    - name: Generate Comprehensive Report
-      run: reportgenerator 
-           -reports:TestResults/**/coverage.cobertura.xml 
-           -targetdir:TestResults/CoverageReport 
-           -reporttypes:"Html;HtmlSummary;Cobertura;TextSummary;Badges;TeamCitySummary;PngChart"
-           
-    - name: Generate Test Report
+    - name: Test Report
       uses: dorny/test-reporter@v1
       if: always()
       with:
-        name: Quality Assurance Test Report
+        name: Test Results
         path: TestResults/test-results.trx
         reporter: dotnet-trx
         fail-on-error: true
-
-    - name: Package Reports
-      if: always()
-      run: |
-        echo "Test Report Generation Date: $(Get-Date -Format "yyyy-MM-dd HH:mm")" > TestResults/report-info.txt
-        echo "Project: NorthWindService" >> TestResults/report-info.txt
-        echo "Version: $(git describe --tags --always)" >> TestResults/report-info.txt
-        Compress-Archive -Path TestResults/* -DestinationPath TestResults/QA_Report.zip
-        
-    - name: Upload Full Report Package
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: QA_Report_Package
-        path: TestResults/QA_Report.zip
-        retention-days: 90
