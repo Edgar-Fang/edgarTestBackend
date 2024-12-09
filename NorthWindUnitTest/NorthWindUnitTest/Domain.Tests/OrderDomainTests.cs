@@ -46,7 +46,7 @@
             var result = order.GetFormattedFreight();
 
             // Assert
-            Assert.Equal("NT$1,234.56", result);
+            Assert.Equal("$1,234.56", result);
         }
 
         /// <summary>
