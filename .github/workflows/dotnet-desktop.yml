@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "master" ]
 
+permissions:
+  contents: read
+  checks: write  # 需要這個權限來創建測試報告
+
 jobs:
   build:
     runs-on: windows-latest
@@ -24,20 +28,16 @@ jobs:
     - name: Build
       run: dotnet build ./NorthWindService/NorthWindService.csproj --no-restore
       
-    - name: Test with coverage
-      run: dotnet test ./NorthWindUnitTest/NorthWindUnitTest/NorthWindUnitTest.csproj --collect:"XPlat Code Coverage" --results-directory TestResults
-      
-    - name: Install ReportGenerator
-      run: dotnet tool install -g dotnet-reportgenerator-globaltool
-      
-    - name: Generate Coverage Report
-      run: reportgenerator -reports:TestResults/**/coverage.cobertura.xml -targetdir:coveragereport -reporttypes:Html
-        
-    - name: Upload Test Results
-      if: always()
-      uses: actions/upload-artifact@v3
+    - name: Test
+      run: dotnet test ./NorthWindUnitTest/NorthWindUnitTest/NorthWindUnitTest.csproj 
+           --logger "trx;LogFileName=test-results.trx" 
+           --results-directory TestResults
+           
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: always()  # 即使前面步驟失敗也要執行
       with:
-        name: Test Results
-        path: |
-          TestResults
-          coveragereport
+        name: .NET Test Results
+        path: TestResults/test-results.trx
+        reporter: dotnet-trx
+        fail-on-error: true
