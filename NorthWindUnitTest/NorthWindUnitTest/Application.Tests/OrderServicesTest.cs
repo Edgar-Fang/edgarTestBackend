@@ -48,7 +48,7 @@ public class OrderServiceTests
         var dto = result.First();
         Assert.Equal(1, dto.OrderId);
         Assert.Equal("Test Customer", dto.CustomerName);
-        Assert.Equal("$100.00", dto.FormattedFreight);
+        Assert.Equal("NT$100.00", dto.FormattedFreight);
         Assert.Equal("已出貨", dto.ShipStatus);
     }
 

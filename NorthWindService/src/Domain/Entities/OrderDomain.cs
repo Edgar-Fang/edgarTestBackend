@@ -1,3 +1,5 @@
+using System.Globalization;
+
 public class OrderDomain
 {
     // 基本屬性
@@ -25,7 +27,7 @@ public class OrderDomain
         };
     }
 
-    public string GetFormattedFreight() => Freight.ToString("C");
+    public string GetFormattedFreight() => Freight.ToString("C", new CultureInfo("zh-TW"));
     public string GetFormattedOrderDate() => OrderDate?.ToString("yyyy/MM/dd") ?? "未設定日期";
     public string GetShipStatus() => ShippedDate.HasValue ? "已出貨" : "處理中";
 }
