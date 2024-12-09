@@ -1,4 +1,4 @@
-name: .NET Core Build
+name: .NET Core Build and Test Report
 
 on:
   push:
@@ -8,10 +8,10 @@ on:
 
 permissions:
   contents: read
-  checks: write  # 需要這個權限來創建測試報告
+  checks: write
 
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
     
     steps:
@@ -26,18 +26,46 @@ jobs:
       run: dotnet restore ./NorthWindService/NorthWindService.csproj
       
     - name: Build
-      run: dotnet build ./NorthWindService/NorthWindService.csproj --no-restore
+      run: dotnet build ./NorthWindService/NorthWindService.csproj --no-restore --configuration Release
       
-    - name: Test
+    - name: Test with Coverage
       run: dotnet test ./NorthWindUnitTest/NorthWindUnitTest/NorthWindUnitTest.csproj 
+           --no-build 
+           --configuration Release
            --logger "trx;LogFileName=test-results.trx" 
+           --collect:"XPlat Code Coverage"
            --results-directory TestResults
            
-    - name: Test Report
+    - name: Install ReportGenerator
+      run: dotnet tool install -g dotnet-reportgenerator-globaltool
+      
+    - name: Generate Comprehensive Report
+      run: reportgenerator 
+           -reports:TestResults/**/coverage.cobertura.xml 
+           -targetdir:TestResults/CoverageReport 
+           -reporttypes:"Html;HtmlSummary;Cobertura;TextSummary;Badges;TeamCitySummary;PngChart"
+           
+    - name: Generate Test Report
       uses: dorny/test-reporter@v1
-      if: always()  # 即使前面步驟失敗也要執行
+      if: always()
       with:
-        name: .NET Test Results
+        name: Quality Assurance Test Report
         path: TestResults/test-results.trx
         reporter: dotnet-trx
         fail-on-error: true
+
+    - name: Package Reports
+      if: always()
+      run: |
+        echo "Test Report Generation Date: $(Get-Date -Format "yyyy-MM-dd HH:mm")" > TestResults/report-info.txt
+        echo "Project: NorthWindService" >> TestResults/report-info.txt
+        echo "Version: $(git describe --tags --always)" >> TestResults/report-info.txt
+        Compress-Archive -Path TestResults/* -DestinationPath TestResults/QA_Report.zip
+        
+    - name: Upload Full Report Package
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: QA_Report_Package
+        path: TestResults/QA_Report.zip
+        retention-days: 90
